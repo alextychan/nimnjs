@@ -27,42 +27,44 @@ var MapType = require("./mapType");
 var ListType = require("./listType");
 var VarMapType = require("./varMapType");
 
-function buildSchema(schema, shouldSanitize){
-    if(shouldSanitize !== false){
-        shouldSanitize = true;
-    }
+function buildSchema(schema, shouldSanitize) {
+  if (!schema) return null;
 
-    if(schema.type === "map"){
-        var mapSchema = new MapType(schema.name);
-        mapSchema._keys = [];
-        mapSchema._len = schema.detail.length;
-        for(var i=0; i < mapSchema._len; i++){
-            mapSchema._keys.push( buildSchema(schema.detail[i], shouldSanitize ) );
-        }
-        return mapSchema;
-    }else if(schema.type === "list"){
-        var listSchema = new ListType(schema.name);
-        listSchema._item = buildSchema(schema.detail, shouldSanitize);
-        return listSchema;
-    }else if(schema.type === "varmap"){
-        var listSchema = new VarMapType(schema.name);
-        listSchema._item = buildSchema(schema.detail, shouldSanitize);
-        return listSchema;
-    }else if(schema.type === "boolean"){
-        return new BooleanType(schema.name, schema.default);
-    }else  if(schema.type === "string"){
-        return new StringType(schema.name, schema.default, shouldSanitize);
-    }else{//number
-        return new NumberType(schema.name, schema.default);
+  if (shouldSanitize !== false) {
+    shouldSanitize = true;
+  }
+
+  if (schema.type === "map") {
+    var mapSchema = new MapType(schema.name);
+    mapSchema._keys = [];
+    mapSchema._len = schema.detail.length;
+    for (var i = 0; i < mapSchema._len; i++) {
+      mapSchema._keys.push(buildSchema(schema.detail[i], shouldSanitize));
     }
+    return mapSchema;
+  } else if (schema.type === "list") {
+    var listSchema = new ListType(schema.name);
+    listSchema._item = buildSchema(schema.detail, shouldSanitize);
+    return listSchema;
+  } else if (schema.type === "varmap") {
+    var listSchema = new VarMapType(schema.name);
+    listSchema._item = buildSchema(schema.detail, shouldSanitize);
+    return listSchema;
+  } else if (schema.type === "boolean") {
+    return new BooleanType(schema.name, schema.default);
+  } else if (schema.type === "string") {
+    return new StringType(schema.name, schema.default, shouldSanitize);
+  } else { //number
+    return new NumberType(schema.name, schema.default);
+  }
 }
 
-function parse(schema, jsObj){
-    return schema._encode(jsObj);
+function parse(schema, jsObj) {
+  return schema._encode(jsObj);
 }
 
-function parseBack(schema, nimnData){
-    return schema._decode(nimnData,0).value;
+function parseBack(schema, nimnData) {
+  return schema._decode(nimnData, 0).value;
 }
 
 
